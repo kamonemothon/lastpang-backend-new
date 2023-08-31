@@ -71,6 +71,7 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public ScheduleFindByCommonResponse findScheduleByCommon(Long commonScheduleId) {
 
         CommonSchedule commonSchedule = commonScheduleRepository.findById(commonScheduleId)

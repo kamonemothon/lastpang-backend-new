@@ -5,6 +5,7 @@ import app.lastpang.hour.domain.schedule.domain.PersonalSchedule;
 import app.lastpang.hour.domain.schedule.domain.repository.CommonScheduleRepository;
 import app.lastpang.hour.domain.schedule.domain.repository.PersonalScheduleRepository;
 import app.lastpang.hour.domain.schedule.presentation.dto.request.ScheduleSaveRequest;
+import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleFindByCommonResponse;
 import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleSaveResponse;
 import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleFindAllResponse;
 import app.lastpang.hour.domain.schedule.service.helper.KakaoMobilityHelper;
@@ -91,6 +92,7 @@ public class ScheduleService {
     }
 
     private String convertToCustomFormat(String dateTime) {
+
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMddHHmm");
@@ -109,5 +111,13 @@ public class ScheduleService {
         return personalScheduleList.stream()
                 .map(ScheduleFindAllResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    public ScheduleFindByCommonResponse findScheduleByCommon(Long commonScheduleId) {
+
+        CommonSchedule commonSchedule = commonScheduleRepository.findById(commonScheduleId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMON_SCHEDULE));
+
+        return new ScheduleFindByCommonResponse(commonSchedule);
     }
 }

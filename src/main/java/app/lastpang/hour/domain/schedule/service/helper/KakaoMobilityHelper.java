@@ -39,30 +39,34 @@ public class KakaoMobilityHelper {
             );
 
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
-                String response = responseEntity.getBody();
-                int startIndex = response.indexOf("\"duration\"");
-
-                if (startIndex != -1) {
-                    int colonIndex = response.indexOf(":", startIndex);
-                    int commaIndex = response.indexOf(",", colonIndex);
-
-                    if (colonIndex != -1 && commaIndex != -1) {
-                        String durationValue = response.substring(colonIndex + 1, commaIndex).trim();
-                        durationValue = durationValue.replace("{", "").replace("}", "").trim();
-                        Long duration = Long.valueOf(durationValue);
-                        return duration / 60;
-                    }
-                } else {
-                    System.err.println("duration을 찾을 수 없습니다.");
-                }
+                return findDuration(responseEntity.getBody());
             } else {
-                System.err.println("Request failed with status code: " + responseEntity.getStatusCode());
+                System.err.println(responseEntity.getStatusCode());
+                throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
-        return null;
+    }
+
+    private Long findDuration(String response) {
+
+        int startIndex = response.indexOf("\"duration\"");
+
+        if (startIndex != -1) {
+            int colonIndex = response.indexOf(":", startIndex);
+            int commaIndex = response.indexOf(",", colonIndex);
+
+            if (colonIndex != -1 && commaIndex != -1) {
+                String durationValue = response.substring(colonIndex + 1, commaIndex).trim();
+                durationValue = durationValue.replace("{", "").replace("}", "").trim();
+                Long duration = Long.valueOf(durationValue);
+                return duration / 60;
+            }
+        }
+
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
     private String formatDateTime(String dateTime) {

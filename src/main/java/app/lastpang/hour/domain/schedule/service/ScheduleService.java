@@ -6,6 +6,7 @@ import app.lastpang.hour.domain.schedule.domain.repository.CommonScheduleReposit
 import app.lastpang.hour.domain.schedule.domain.repository.PersonalScheduleRepository;
 import app.lastpang.hour.domain.schedule.mapper.ScheduleMapper;
 import app.lastpang.hour.domain.schedule.presentation.dto.request.ScheduleSaveRequest;
+import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleFindByCommonResponse;
 import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleSaveResponse;
 import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleFindAllResponse;
 import app.lastpang.hour.domain.schedule.service.helper.KakaoMobilityHelper;
@@ -68,6 +69,14 @@ public class ScheduleService {
         return personalScheduleList.stream()
                 .map(scheduleMapper::toScheduleFindAllResponse)
                 .collect(Collectors.toList());
+    }
+
+    public ScheduleFindByCommonResponse findScheduleByCommon(Long commonScheduleId) {
+
+        CommonSchedule commonSchedule = commonScheduleRepository.findById(commonScheduleId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMON_SCHEDULE));
+
+        return new ScheduleFindByCommonResponse(commonSchedule);
     }
 
     private PersonalSchedule getPersonalSchedule(CommonSchedule commonSchedule, User user, ScheduleSaveRequest request) {

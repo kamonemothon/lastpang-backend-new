@@ -2,6 +2,7 @@ package app.lastpang.hour.domain.schedule.presentation;
 
 import app.lastpang.hour.domain.schedule.presentation.dto.request.ScheduleSaveRequest;
 import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleFindAllResponse;
+import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleFindByCommonResponse;
 import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleSaveResponse;
 import app.lastpang.hour.domain.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
@@ -34,4 +35,10 @@ public class ScheduleController {
         return ResponseEntity.ok().body(scheduleService.findAllSchedule());
     }
 
+    @GetMapping("/common")
+    public ResponseEntity<ScheduleFindByCommonResponse> findScheduleByCommon(
+            @RequestParam(value="id", required = true) Long commonScheduleId) {
+
+        return ResponseEntity.ok().body(scheduleService.findScheduleByCommon(commonScheduleId));
+    }
 }

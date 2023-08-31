@@ -1,9 +1,14 @@
 package app.lastpang.hour.domain.schedule.service.helper;
 
+import app.lastpang.hour.global.exception.CustomException;
+import app.lastpang.hour.global.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Component
 public class KakaoMobilityHelper {
@@ -22,7 +27,7 @@ public class KakaoMobilityHelper {
             String url = "https://apis-navi.kakaomobility.com/v1/future/directions";
             String queryParams = String.format(
                     "?origin=%s&destination=%s&departure_time=%s",
-                    origin, destination, arrivalTime);
+                    origin, destination, formatDateTime(arrivalTime));
 
             HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
 
@@ -58,5 +63,16 @@ public class KakaoMobilityHelper {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private String formatDateTime(String dateTime) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMddHHmm");
+            Date date = inputFormat.parse(dateTime);
+            return outputFormat.format(date);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 }

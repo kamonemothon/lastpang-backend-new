@@ -4,6 +4,7 @@ import app.lastpang.hour.domain.schedule.domain.CommonSchedule;
 import app.lastpang.hour.domain.schedule.domain.PersonalSchedule;
 import app.lastpang.hour.domain.schedule.domain.repository.CommonScheduleRepository;
 import app.lastpang.hour.domain.schedule.domain.repository.PersonalScheduleRepository;
+import app.lastpang.hour.domain.schedule.mapper.ScheduleMapper;
 import app.lastpang.hour.domain.schedule.presentation.dto.request.ScheduleSaveRequest;
 import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleFindByCommonResponse;
 import app.lastpang.hour.domain.schedule.presentation.dto.response.ScheduleSaveResponse;
@@ -17,11 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +30,7 @@ public class ScheduleService {
 
     private final CommonScheduleRepository commonScheduleRepository;
     private final PersonalScheduleRepository personalScheduleRepository;
+    private final ScheduleMapper scheduleMapper;
     private final KakaoMobilityHelper kakaoMobilityHelper;
     private final UserUtils userUtils;
 
@@ -39,85 +38,57 @@ public class ScheduleService {
     public ScheduleSaveResponse saveFirstSchedule(ScheduleSaveRequest request) {
 
         User user = userUtils.getCurrentUser();
-        LocalDateTime arrivalTime = formatDateTime(request.getArrivalTime());
-        
-        CommonSchedule commonSchedule = CommonSchedule.createCommonSchedule(
-                request.getName(),
-                request.getMemo(),
-                request.getDestinationName(),
-                arrivalTime
-        );
+        CommonSchedule commonSchedule = scheduleMapper.toCommonSchedule(request);
         commonScheduleRepository.save(commonSchedule);
 
-        Long duration = kakaoMobilityHelper.getDepartureTime(request.getOrigin(), request.getDestination(), convertToCustomFormat(request.getArrivalTime()));
-        LocalDateTime departureTime = arrivalTime.minus(duration, ChronoUnit.MINUTES);
-        PersonalSchedule personalSchedule = PersonalSchedule.createPersonalSchedule(
-                user,
-                commonSchedule,
-                request.getOriginName(),
-                departureTime
-        );
+        PersonalSchedule personalSchedule = getPersonalSchedule(commonSchedule, user, request);
         personalScheduleRepository.save(personalSchedule);
 
-        return new ScheduleSaveResponse(personalSchedule.getId(), commonSchedule.getId());
+        return scheduleMapper.toScheduleSaveResponse(personalSchedule, commonSchedule);
     }
 
     // 이미 존재하는 공통 스케줄에 개인 스케줄 추가
-    public ScheduleSaveResponse saveAddedSchedule(ScheduleSaveRequest request, Long commonScheduleId) {
+    public ScheduleSaveResponse saveExistSchedule(ScheduleSaveRequest request, Long commonScheduleId) {
 
         User user = userUtils.getCurrentUser();
-        LocalDateTime arrivalTime = formatDateTime(request.getArrivalTime());
-
         CommonSchedule commonSchedule = commonScheduleRepository.findById(commonScheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMON_SCHEDULE));
 
-        Long duration = kakaoMobilityHelper.getDepartureTime(request.getOrigin(), request.getDestination(), convertToCustomFormat(request.getArrivalTime()));
-        LocalDateTime departureTime = arrivalTime.minus(duration, ChronoUnit.MINUTES);
-
-        PersonalSchedule personalSchedule = PersonalSchedule.createPersonalSchedule(
-                user,
-                commonSchedule,
-                request.getOriginName(),
-                departureTime
-        );
+        PersonalSchedule personalSchedule = getPersonalSchedule(commonSchedule, user, request);
         personalScheduleRepository.save(personalSchedule);
 
-        return new ScheduleSaveResponse(personalSchedule.getId(), commonSchedule.getId());
+        return scheduleMapper.toScheduleSaveResponse(personalSchedule, commonSchedule);
     }
 
-    private LocalDateTime formatDateTime(String dateTime) {
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return LocalDateTime.parse(dateTime, formatter);
-    }
-
-    private String convertToCustomFormat(String dateTime) {
-
-        try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMddHHmm");
-            Date date = inputFormat.parse(dateTime);
-            return outputFormat.format(date);
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+    @Transactional(readOnly = true)
     public List<ScheduleFindAllResponse> findAllSchedule() {
 
         User user = userUtils.getCurrentUser();
         List<PersonalSchedule> personalScheduleList = personalScheduleRepository.findAllByUser(user);
 
         return personalScheduleList.stream()
-                .map(ScheduleFindAllResponse::new)
+                .map(scheduleMapper::toScheduleFindAllResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public ScheduleFindByCommonResponse findScheduleByCommon(Long commonScheduleId) {
 
         CommonSchedule commonSchedule = commonScheduleRepository.findById(commonScheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMON_SCHEDULE));
 
         return new ScheduleFindByCommonResponse(commonSchedule);
+    }
+
+    private PersonalSchedule getPersonalSchedule(CommonSchedule commonSchedule, User user, ScheduleSaveRequest request) {
+
+        LocalDateTime departureTime = getDepartureTime(commonSchedule, request);
+        return scheduleMapper.toPersonalSchedule(user, commonSchedule, request.getOriginName(), departureTime);
+    }
+
+    private LocalDateTime getDepartureTime(CommonSchedule commonSchedule, ScheduleSaveRequest request) {
+
+        Long duration = kakaoMobilityHelper.getDepartureTime(request.getOrigin(), request.getDestination(), request.getArrivalTime());
+        return commonSchedule.getArrivalTime().minus(duration, ChronoUnit.MINUTES);
     }
 }

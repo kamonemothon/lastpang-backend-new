@@ -25,7 +25,7 @@ public class ScheduleController {
         if(commonScheduleId == null) {
             return ResponseEntity.ok().body(scheduleService.saveFirstSchedule(request));
         }
-        return ResponseEntity.ok().body(scheduleService.saveAddedSchedule(request, commonScheduleId));
+        return ResponseEntity.ok().body(scheduleService.saveExistSchedule(request, commonScheduleId));
     }
 
     @GetMapping("")

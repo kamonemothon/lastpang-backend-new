@@ -26,7 +26,7 @@ DB_PASSWORD=yourpassword
   <br/>
 
 ## 🏛 Project Architecture
-<image src='https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2Fa98aa686-1767-4142-a9a2-f7303fcfa347%2F9f4bc8d2-bbbf-4755-9503-b80b136a2e14%2FUntitled.png?table=block&id=29cc80b0-5a98-46ef-981c-35b44895647b&spaceId=a98aa686-1767-4142-a9a2-f7303fcfa347&width=2000&userId=d30f258c-d9aa-4582-87a1-adc478dcd1b6&cache=v2' width="600"/>
+<image src='https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2Fa98aa686-1767-4142-a9a2-f7303fcfa347%2F9f4bc8d2-bbbf-4755-9503-b80b136a2e14%2FUntitled.png?table=block&id=29cc80b0-5a98-46ef-981c-35b44895647b&spaceId=a98aa686-1767-4142-a9a2-f7303fcfa347&width=2000&userId=d30f258c-d9aa-4582-87a1-adc478dcd1b6&cache=v2' width="700"/>
 <br/>
 
 ## ✅ Server Deployment Process (CI/CD using Github Actions)
@@ -54,7 +54,7 @@ DB_PASSWORD=yourpassword
 
 ## 📁 ERD
 
-<image src='https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2Fa98aa686-1767-4142-a9a2-f7303fcfa347%2F6c290957-51bd-4f9f-bb44-996c8b257683%2FUntitled.png?table=block&id=64672f17-4f89-409d-8803-63b318782c50&spaceId=a98aa686-1767-4142-a9a2-f7303fcfa347&width=2000&userId=d30f258c-d9aa-4582-87a1-adc478dcd1b6&cache=v2' width="500"/>
+<image src='https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2Fa98aa686-1767-4142-a9a2-f7303fcfa347%2F6c290957-51bd-4f9f-bb44-996c8b257683%2FUntitled.png?table=block&id=64672f17-4f89-409d-8803-63b318782c50&spaceId=a98aa686-1767-4142-a9a2-f7303fcfa347&width=2000&userId=d30f258c-d9aa-4582-87a1-adc478dcd1b6&cache=v2' width="600"/>
 
 <br/>
 
